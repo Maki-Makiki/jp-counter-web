@@ -1,0 +1,25 @@
+{
+    "config":
+    {
+        "ticks":5,
+        "duration":2000
+    },
+    "people":
+    [
+        {
+            "name":"juan",
+            "code":"JP",
+            "date":"April 05, 2021"
+        },
+                {
+            "name":"maki",
+            "code":"MK",
+            "date":"November 01, 2016"
+        },
+                {
+            "name":"laura",
+            "code":"LL",
+            "date":"January 02, 1996"
+        }
+    ]
+}

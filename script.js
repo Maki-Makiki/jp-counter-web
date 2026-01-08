@@ -1,28 +1,15 @@
 // jp date 5/4/2021
-const MakiDate = new Date("November 01, 2016");
-const jpDate = new Date("April 05, 2021");
-const LauraDate = new Date("January 02, 1996");
+const JSON_DIR = "./data.json";
+var params = {};
+var personData = {};
 
-const urlParams = new URLSearchParams(window.location.search);
-const myParam = urlParams.get('type');
-var counterType = myParam;
+//contador interno para acumular decimales
+let internalCounter = 0;
+let startTime = 0;
+let loopTimeout = null;
 
 // creating today date
 var today = new Date();
-
-var pagina = document.getElementsByClassName("pagina")[0];
-
-var counter_fondo = document.getElementsByClassName("num-fondo")[0];
-var counter = document.getElementsByClassName("num-frente")[0];
-var counter_blur = document.getElementsByClassName("num-frente-blur")[0];
-
-var name_Back = document.getElementsByClassName("nombre")[0];
-var name_Text = document.getElementsByClassName("nombre-frente")[0];
-var name_Blur = document.getElementsByClassName("nombre-frente-blur")[0];
-
-console.log( "today " + today.getDay() + "/" + today.getMonth() + "/" + today.getFullYear() );
-console.log( "JP date " + jpDate.getDay() + "/" +  jpDate.getMonth() + "/" + jpDate.getFullYear() );
-console.log( "MK date " + MakiDate.getDay() + "/" +  MakiDate.getMonth() + "/" + MakiDate.getFullYear() );
 
 let difference = 0;
 let TotalDays = 0;
@@ -30,117 +17,322 @@ let TotalDays = 0;
 var TotalDaysCalculated = 0;
 var time = 1;
 var duration = 300 //in milisecond
-
-
-console.log("counter type = " + counterType);
-
-switch(counterType){
-    case "maki":
-        difference = today.getTime() - MakiDate.getTime() ;
-        TotalDays = Math.floor(difference / (1000 * 3600 * 24));
-        setName("MK-");
-        break;
-    case "laura":
-        difference = today.getTime() - LauraDate.getTime() ;
-        TotalDays = Math.floor(difference / (1000 * 3600 * 24));
-        setName("LL-");
-        break;
-
-    default:
-        difference = today.getTime() - jpDate.getTime() ;
-        TotalDays = Math.floor(difference / (1000 * 3600 * 24));
-        setName("JP-");
-        break;
-}
-
 var speed_number = 0;
-speed_number = Math.ceil(TotalDays/duration);
 
-console.log("Total Days = " + TotalDays);
-console.log("difference = " + difference);
-console.log("speed_number = " + speed_number);
-console.log("TotalDaysCalculated = " + TotalDaysCalculated);
+var pagina = document.getElementsByClassName("pagina")[0];
 
-tick();
+var counter_fondo = document.getElementsByClassName("num-fondo")[0];
+var counter = document.getElementsByClassName("num-frente")[0];
+var counter_blur = document.getElementsByClassName("num-frente-blur")[0];
 
-// counter.textContent = TotalDays;
+var name_Back = document.getElementsByClassName("nombre-fondo")[0];
+var name_Text = document.getElementsByClassName("nombre-frente")[0];
+var name_Blur = document.getElementsByClassName("nombre-frente-blur")[0];
 
-function setName(namePerson){
-    name_Back.textContent = namePerson;
-    name_Text.textContent = namePerson;
-    name_Blur.textContent = namePerson;
-}
+var op_window = document.getElementsByClassName("op-window")[0];
+var op_container = document.getElementsByClassName("op-container")[0];
 
+var toolbar = document.getElementsByClassName("toolbar")[0];
+var btn_options = document.getElementsByClassName("btn-options")[0];
+var btn_refresh = document.getElementsByClassName("btn-refresh")[0];
+var btn_time = document.getElementsByClassName("btn-time")[0];
 
-function tick()
-{
-    setTimeout(() => {
-        if(TotalDaysCalculated < TotalDays){
-            TotalDaysCalculated += speed_number
-            updateCounter();
-            tack();
-        }else{
-            TotalDaysCalculated = TotalDays
-            updateCounter();
+var duration_txt= document.getElementsByClassName("dur-text")[0];
+
+let durlist = [
+    {
+        duration:125,
+        text:"1/8"
+    },    
+    {
+        duration:250,
+        text:"1/4"
+    },    
+    {
+        duration:500,
+        text:"1/2"
+    },    
+    {
+        duration:1000,
+        text:"1s"
+    },    
+    {
+        duration:2000,
+        text:"2s"
+    },    
+    {
+        duration:4000,
+        text:"4s"
+    },    
+    {
+        duration:8000,
+        text:"8s"
+    },
+]
+
+var btn_close = document.getElementsByClassName("btn-close")[0];
+
+var optionsHidden = true;
+
+function SetTimeButtonText(){
+    for(let i=0; i<durlist.length; i++){
+        if(GetDuration() == durlist[i].duration){
+            duration_txt.textContent = durlist[i].text;
         }
-    }, time);
+    }
 }
 
-function tack()
-{
-    setTimeout(() => {
-        if(TotalDaysCalculated < TotalDays){
-            TotalDaysCalculated += speed_number
-            updateCounter();
-            tick();
+function SetupOptionBtn(){
+    btn_options.addEventListener('click', (e)=>{
+        toolbar.classList.toggle('hidden', optionsHidden);
+        op_window.classList.toggle('hidden', !optionsHidden);
+        optionsHidden = !optionsHidden;
+    });
+
+    btn_close.addEventListener('click', (e)=>{
+        toolbar.classList.toggle('hidden', optionsHidden);
+        op_window.classList.toggle('hidden', !optionsHidden);
+        optionsHidden = !optionsHidden;
+    });
+
+    btn_refresh.addEventListener('click', (e)=>{
+        toolbar.classList.toggle('hidden', false);
+        op_window.classList.toggle('hidden', true);
+        optionsHidden = true;
+
+        StartLoop();
+    });
+
+    btn_time.addEventListener('click', (e)=>{
+
+        let actualDurIndex = -1
+
+        for(let i=0; i<durlist.length; i++){
+            if(GetDuration() == durlist[i].duration){
+                actualDurIndex = i;
+                break;
+            }
+        }
+
+        if(actualDurIndex+1 < durlist.length){
+            SetDuration(durlist[actualDurIndex+1].duration)
         }else{
-            TotalDaysCalculated = TotalDays
-            updateCounter();
-        }        
-    }, time);
+            SetDuration(durlist[0].duration)
+        }
+
+         SetTimeButtonText();
+    });
 }
 
-window.addEventListener("resize", (e)=>{
-    resizetext(counter_fondo, [counter, counter_blur])
-    resizetext(name_Back, [name_Text, name_Blur])
-})
+/**
+ * 
+ * @param {Object} JSONData - datos de data.json ya importados
+ * @param {[Object]} JSONData.people - datos de data.json ya importados
+ */
+function CreateOptions(JSONData){
+    for(let i=0; i<JSONData.people.length; i++){
+        InstanceOption(JSONData.people[i])
+    }
+}
 
-function updateCounter(){
+/**
+ * 
+ * @param {Object} personData 
+ * @param {string} personData.name - string nombre de la persona 
+ * @param {string} personData.code - sting codigo de la persona
+ * @param {string} personData.date - string fecha de la persona en ingles
+ * @param {HTMLElement} container - contenedor donde instanciar el control
+ */
+function InstanceOption(personData){
+
+    let option_element = document.createElement("div");
+    option_element.classList.add("option");
+    option_element.innerHTML =
+            `<div class="op-name">${personData.code}</div>
+            <div class="op-separator">-</div>
+            <div class="op-date">${personData.date}</div>`
+
+    op_container.appendChild(option_element);
+
+    option_element.addEventListener('click', (e)=>{
+        location.href = location.href.split("?")[0] + `?type=${personData.code}`;
+    });
+}
+
+function StartLoop() {
+    // cortar loop anterior si existe
+    if (loopTimeout !== null) {
+        clearTimeout(loopTimeout);
+        loopTimeout = null;
+    }
+
+    startTime = performance.now();
+    loop();
+}
+
+function loop() {
+    loopTimeout = setTimeout(() => {
+        const now = performance.now();
+        const elapsed = now - startTime;
+
+        const duration = GetDuration();
+        const progress = Math.min(elapsed / duration, 1);
+
+        TotalDaysCalculated = Math.floor(TotalDays * progress);
+        UpdateCounter();
+
+        if (progress < 1) {
+            loop();
+        } else {
+            TotalDaysCalculated = TotalDays;
+            UpdateCounter();
+            loopTimeout = null; // loop terminado
+        }
+    }, GetTickTime());
+}
+
+function GetTickTime() {
+    const DEFAULT_TICK = 1; // ms, ajustá a gusto
+
+    const tick = window.counterTick;
+
+    if (typeof tick !== "number" || tick <= 0) {
+        return DEFAULT_TICK;
+    }
+
+    // console.log("window.counterTick =>", window.counterTick)
+    return tick;
+}
+
+function SetDuration(value) {
+    value = Number(value);
+    if (!Number.isFinite(value) || value <= 0) return;
+
+    localStorage.setItem("counter.duration", value);
+}
+
+function GetDuration() {
+    const DEFAULT_DURATION = 1000; // ms
+
+    // 1️⃣ localStorage (persistente)
+    const stored = localStorage.getItem("counter.duration");
+    if (stored !== null) {
+        const value = Number(stored);
+        if (Number.isFinite(value) && value > 0) {
+            return value;
+        }
+    }
+
+    // 2️⃣ window.counterDuration (runtime / JSON)
+    const duration = window.counterDuration;
+    if (typeof duration === "number" && duration > 0) {
+        return duration;
+    }
+
+    // 3️⃣ fallback absoluto
+    return DEFAULT_DURATION;
+}
+
+
+function UpdateCounter(){
     if(TotalDaysCalculated > TotalDays){TotalDaysCalculated = TotalDays;}
     counter.textContent = TotalDaysCalculated;
     counter_blur.textContent = TotalDaysCalculated;
 }
 
-/** reescala el texto segun el tamaño de la pantalla
- * 
- * @param {HTMLElement} elemento 
- * @param {[HTMLElement]} lista 
- */
-function resizetext(elemento, lista){
-    console.log("rezisetext()")
-    pagina.style.setProperty("--multy", window.innerHeight > window.innerWidth ? 1 : 1.5);
-    elemento.style.setProperty("--font-size", elemento.clientHeight + "px");
-    
-    for (const element of lista) {
-        element.style.setProperty("--font-size", elemento.clientHeight + "px");
-        element.style.setProperty("--ancho", elemento.clientWidth + "px");
+//CODIGO NUEVO
+async function fetchData() {
+    try {
+        const response = await fetch(JSON_DIR);
+        if (!response.ok) {
+            throw new Error("No se pudo cargar el JSON con los datos");
+        }
+
+        return await response.json();
+
+    } catch (error) {
+        console.error("Error Accediendo al JSON con los datos:", error);
+        return null;
     }
 }
 
-setTimeout(() => { 
-    window.dispatchEvent(new Event("resize")); 
-}, 10);
+function GetParams(){
+    const urlParams = new URLSearchParams(window.location.search);
 
-setTimeout(() => { 
-    window.dispatchEvent(new Event("resize")); 
-}, 100);
+    return {
+        type: urlParams.get('type')?.toUpperCase() ?? "JP"
+    };
+}
 
-setTimeout(() => { 
-    window.dispatchEvent(new Event("resize")); 
-}, 500);
+function GetPersonData(JSONData, params){
+    for(let i = 0; i<JSONData.people.length; i++){
+        if(JSONData.people[i].code.toUpperCase() == params.type.toUpperCase()){
+            return JSONData.people[i];
+        }
+    }
+}
 
-setTimeout(() => { 
-    window.dispatchEvent(new Event("resize")); 
-}, 1000);
+function SetName(JSONPersonData){
+    name_Text.textContent = `${JSONPersonData.code}-`;
+    name_Blur.textContent = `${JSONPersonData.code}-`;
+}
 
-window.dispatchEvent(new Event("resize"));
+function SetupCounterSettings(JSONData){
+    window.counterTick = JSONData.config.ticks;
+    window.counterDuration = JSONData.config.duration //in milisecond
+}
+
+function SetupCounterNumbers(JSONPersonData){
+
+    today = new Date();
+    const personDate = new Date(JSONPersonData.date);
+
+    difference = today.getTime() - personDate.getTime();
+    TotalDays = Math.floor(difference / (1000 * 3600 * 24));
+
+    const tickTime = GetTickTime();
+    const duration = GetDuration();
+
+    const totalTicks = duration / tickTime;
+
+    speed_number = TotalDays / totalTicks;
+
+    console.log("TotalDays =", TotalDays);
+    console.log("duration =", duration);
+    console.log("tickTime =", tickTime);
+    console.log("totalTicks =", totalTicks);
+    console.log("speed_number =", speed_number);
+}
+
+async function StartCounter(){
+
+    //start setup
+
+    //get config data
+    const dataJSON = await fetchData();
+    if (!dataJSON) return;
+    console.log("StartCounter() => dataJSON", dataJSON); 
+
+    SetupCounterSettings(dataJSON)
+    SetupOptionBtn();
+    CreateOptions(dataJSON)
+
+    //get custom parameters
+    params = GetParams();
+    console.log("GetParams() => params", params);
+
+    // usar dataJSON acá
+    personData = GetPersonData(dataJSON, params) 
+    console.log("GetPersonData() => personData", personData);
+
+    if (!personData) return;
+    SetName(personData);
+    
+    SetupCounterNumbers(personData);
+    //start the counter loop
+    SetTimeButtonText();
+    StartLoop();
+}
+
+StartCounter();
+
