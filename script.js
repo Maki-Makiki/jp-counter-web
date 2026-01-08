@@ -36,6 +36,7 @@ var toolbar = document.getElementsByClassName("toolbar")[0];
 var btn_options = document.getElementsByClassName("btn-options")[0];
 var btn_refresh = document.getElementsByClassName("btn-refresh")[0];
 var btn_time = document.getElementsByClassName("btn-time")[0];
+var btn_fulscreen = document.getElementsByClassName("btn-fullscreen")[0];
 
 var duration_txt= document.getElementsByClassName("dur-text")[0];
 
@@ -73,6 +74,7 @@ let durlist = [
 var btn_close = document.getElementsByClassName("btn-close")[0];
 
 var optionsHidden = true;
+var fullscreen = false;
 
 function SetTimeButtonText(){
     for(let i=0; i<durlist.length; i++){
@@ -122,6 +124,77 @@ function SetupOptionBtn(){
 
          SetTimeButtonText();
     });
+
+    btn_fulscreen.addEventListener('click', (e)=>{
+        toggleFullScreen();
+        fullscreen = !fullscreen;        
+    });
+}
+
+function SetFullScreen(value) {
+    value = Boolean(value);
+    if (!Boolean.isFinite(value) || value <= 0) return;
+
+    localStorage.setItem("counter.fullscreen", value);
+}
+
+function GetFullScreen() {
+    const DEFAULT_DURATION = true; // ms
+
+    //localStorage (persistente)
+    const stored = localStorage.getItem("counter.fullscreen");
+    if (stored !== null) {
+        const value = Boolean(stored);
+        if (Boolean(value)) {
+            return value;
+        }
+    }
+
+    if (typeof fullscreen === "boolean") {
+        return duration;
+    }
+
+    //fallback absoluto
+    return DEFAULT_DURATION;
+}
+
+function toggleFullScreen() {
+    if (!document.fullscreenElement &&    // alternative standard method
+        !document.mozFullScreenElement && !document.webkitFullscreenElement) {  // current working methods
+        if (document.documentElement.msRequestFullscreen){
+            document.documentElement.msRequestFullscreen();
+        }else if (document.documentElement.requestFullscreen) {
+            document.documentElement.requestFullscreen();
+        } else if (document.documentElement.mozRequestFullScreen) {
+            document.documentElement.mozRequestFullScreen();
+            w.scroll({top: -50, behavior: 'smooth'});
+        } else if (document.documentElement.webkitRequestFullscreen) {
+            document.documentElement.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
+        }else if (document.webkitEnterFullscreen) {
+            vid.webkitEnterFullscreen(); //for iphone this code worked
+        }
+
+    } else {
+        if (document.msExitFullscreen) {
+            document.msExitFullscreen();
+        } else if (document.cancelFullScreen) {
+            document.exitFullScreen();
+        } else if (document.exitFullScreen) {
+            document.cancelFullScreen();
+        } else if (document.mozCancelFullScreen) {
+            document.mozCancelFullScreen();
+        } else if (document.webkitExitFullscreen ) {
+            document.webkitExitFullscreen ();
+        } else if (document.webkitCancelFullscreen ) {
+            document.webkitCancelFullscreen ();
+        }
+    }
+}
+
+function StartFullScreenCheck(){
+    if(GetFullScreen()){
+        toggleFullScreen();
+    }
 }
 
 /**
@@ -214,7 +287,7 @@ function SetDuration(value) {
 function GetDuration() {
     const DEFAULT_DURATION = 1000; // ms
 
-    // 1️⃣ localStorage (persistente)
+    //first localStorage (persistente)
     const stored = localStorage.getItem("counter.duration");
     if (stored !== null) {
         const value = Number(stored);
@@ -223,13 +296,13 @@ function GetDuration() {
         }
     }
 
-    // 2️⃣ window.counterDuration (runtime / JSON)
+    //if no local store window.counterDuration (runtime / JSON)
     const duration = window.counterDuration;
     if (typeof duration === "number" && duration > 0) {
         return duration;
     }
 
-    // 3️⃣ fallback absoluto
+    //finaly fallback absoluto
     return DEFAULT_DURATION;
 }
 
@@ -316,6 +389,7 @@ async function StartCounter(){
     SetupCounterSettings(dataJSON)
     SetupOptionBtn();
     CreateOptions(dataJSON)
+    StartFullScreenCheck();
 
     //get custom parameters
     params = GetParams();
