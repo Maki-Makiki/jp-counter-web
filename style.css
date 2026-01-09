@@ -306,8 +306,8 @@ body{
 }
 
 .op-button{
-    height: min(40px, 10vw);;
-    width: min(40px, 10vw);;
+    height: min(40px, 10vw);
+    width: min(40px, 10vw);
 
     border-radius: 10px;
     padding: 5px;
@@ -357,11 +357,18 @@ body{
     --second-fomt-size: 15px;
 }
 
-.duration{
-
-    height: 25%;
-
+.dur-icon{
     position: absolute;
+    width: min(40px, 10vw);
+}
+
+.duration{
+    position: absolute;
+    width: min(40px, 10vw);
+
+    align-self: center;
+    text-align: center;
+
     color: rgba(255, 255, 255, 0.63);
     font-family: monospace;
     font-weight: 800;

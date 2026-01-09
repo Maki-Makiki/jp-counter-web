@@ -54,7 +54,7 @@ function UpdateSecondSize() {
     const rect = btn_time.getBoundingClientRect();
     const buttonSize = Math.min(rect.width, rect.height);
 
-    const porcentaje = 0.30; // ajustable
+    const porcentaje = 0.45; // ajustable
     const fontSize = buttonSize * porcentaje;
 
     btn_time.style.setProperty(
@@ -66,31 +66,31 @@ function UpdateSecondSize() {
 let durlist = [
     {
         duration:125,
-        text:"1/8"
+        text:"⅛"
     },    
     {
         duration:250,
-        text:"1/4"
+        text:"¼"
     },    
     {
         duration:500,
-        text:"1/2"
+        text:"½"
     },    
     {
         duration:1000,
-        text:"1s"
+        text:"1"
     },    
     {
         duration:2000,
-        text:"2s"
+        text:"2"
     },    
     {
         duration:4000,
-        text:"4s"
+        text:"4"
     },    
     {
         duration:8000,
-        text:"8s"
+        text:"8"
     },
 ]
 
