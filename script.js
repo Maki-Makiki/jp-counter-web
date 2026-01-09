@@ -40,6 +40,29 @@ var btn_fulscreen = document.getElementsByClassName("btn-fullscreen")[0];
 
 var duration_txt= document.getElementsByClassName("dur-text")[0];
 
+function CallUpdateSecondSize(){
+    setTimeout(() => {
+        requestAnimationFrame(() => {
+            UpdateSecondSize();
+        });
+    }, 200);
+}
+
+function UpdateSecondSize() {
+    if (!btn_time) return;
+
+    const rect = btn_time.getBoundingClientRect();
+    const buttonSize = Math.min(rect.width, rect.height);
+
+    const porcentaje = 0.35; // ajustable
+    const fontSize = buttonSize * porcentaje;
+
+    btn_time.style.setProperty(
+        "--second-fomt-size",
+        `${fontSize}px`
+    );
+}
+
 let durlist = [
     {
         duration:125,
@@ -388,8 +411,13 @@ async function StartCounter(){
 
     SetupCounterSettings(dataJSON)
     SetupOptionBtn();
-    CreateOptions(dataJSON)
+    CreateOptions(dataJSON);
     StartFullScreenCheck();
+
+    //seconds rezise
+    CallUpdateSecondSize();
+    window.addEventListener("resize", CallUpdateSecondSize);
+    window.addEventListener("load", CallUpdateSecondSize);
 
     //get custom parameters
     params = GetParams();
