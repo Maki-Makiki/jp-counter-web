@@ -54,7 +54,7 @@ function UpdateSecondSize() {
     const rect = btn_time.getBoundingClientRect();
     const buttonSize = Math.min(rect.width, rect.height);
 
-    const porcentaje = 0.35; // ajustable
+    const porcentaje = 0.30; // ajustable
     const fontSize = buttonSize * porcentaje;
 
     btn_time.style.setProperty(
