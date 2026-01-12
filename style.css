@@ -362,6 +362,10 @@ body{
     width: min(40px, 10vw);
 }
 
+.full-icon{
+    width: min(40px, 10vw);
+}
+
 .duration{
     position: absolute;
     width: min(40px, 10vw);
