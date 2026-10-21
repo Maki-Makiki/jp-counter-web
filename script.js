@@ -29,6 +29,31 @@ var name_Back = document.getElementsByClassName("nombre-fondo")[0];
 var name_Text = document.getElementsByClassName("nombre-frente")[0];
 var name_Blur = document.getElementsByClassName("nombre-frente-blur")[0];
 
+var num_counter_block  = document.querySelector(".num-counter-block");
+
+var date_counter_block  = document.querySelector(".date-counter-block");
+
+var year_counter_fondo  = document.querySelector(".year-counter-number .num-fondo");
+var year_counter        = document.querySelector(".year-counter-number .num-frente");
+var year_counter_blur   = document.querySelector(".year-counter-number .num-frente-blur");
+var year_name_Back      = document.querySelector(".year-counter-name .nombre-fondo");
+var year_name_Text      = document.querySelector(".year-counter-name .nombre-frente");
+var year_name_Blur      = document.querySelector(".year-counter-name .nombre-frente-blur");
+
+var month_counter_fondo  = document.querySelector(".month-counter-number .num-fondo");
+var month_counter        = document.querySelector(".month-counter-number .num-frente");
+var month_counter_blur   = document.querySelector(".month-counter-number .num-frente-blur");
+var month_name_Back      = document.querySelector(".month-counter-name .nombre-fondo");
+var month_name_Text      = document.querySelector(".month-counter-name .nombre-frente");
+var month_name_Blur      = document.querySelector(".month-counter-name .nombre-frente-blur");
+
+var day_counter_fondo  = document.querySelector(".day-counter-number .num-fondo");
+var day_counter        = document.querySelector(".day-counter-number .num-frente");
+var day_counter_blur   = document.querySelector(".day-counter-number .num-frente-blur");
+var day_name_Back      = document.querySelector(".day-counter-name .nombre-fondo");
+var day_name_Text      = document.querySelector(".day-counter-name .nombre-frente");
+var day_name_Blur      = document.querySelector(".day-counter-name .nombre-frente-blur");
+
 var op_window = document.getElementsByClassName("op-window")[0];
 var op_container = document.getElementsByClassName("op-container")[0];
 
@@ -37,8 +62,20 @@ var btn_options = document.getElementsByClassName("btn-options")[0];
 var btn_refresh = document.getElementsByClassName("btn-refresh")[0];
 var btn_time = document.getElementsByClassName("btn-time")[0];
 var btn_fulscreen = document.getElementsByClassName("btn-fullscreen")[0];
+var btn_counter_type = document.getElementsByClassName("btn-counter-type")[0];
+
+var counter_type = 0;
 
 var duration_txt= document.getElementsByClassName("dur-text")[0];
+
+// Fechas del contador de años, meses y días
+let calendarStartDate = null;
+let calendarEndDate = null;
+
+var btn_close = document.getElementsByClassName("btn-close")[0];
+
+var optionsHidden = true;
+var fullscreen = false;
 
 function CallUpdateSecondSize(){
     setTimeout(() => {
@@ -94,11 +131,6 @@ let durlist = [
     },
 ]
 
-var btn_close = document.getElementsByClassName("btn-close")[0];
-
-var optionsHidden = true;
-var fullscreen = false;
-
 function SetTimeButtonText(){
     for(let i=0; i<durlist.length; i++){
         if(GetDuration() == durlist[i].duration){
@@ -106,6 +138,37 @@ function SetTimeButtonText(){
         }
     }
 }
+
+function ChangeCounterType(){
+    console.log("ChangeCounterType()");
+    if(counter_type == 0){
+        counter_type = 1;
+    }else{
+        counter_type = 0;
+    }
+
+    detectCounterTypeChange();
+}
+
+function detectCounterTypeChange(){
+    if(counter_type == 0){
+        num_counter_block.classList.toggle("desaparecer", false);
+        date_counter_block.classList.toggle("desaparecer", true);
+
+    }else{
+        num_counter_block.classList.toggle("desaparecer", true);
+        date_counter_block.classList.toggle("desaparecer", false);
+        
+    }
+}
+
+function SetupCounterTypeBtn(){
+    btn_counter_type.addEventListener('click', (e)=>{
+        ChangeCounterType();
+    });
+
+}
+
 
 function SetupOptionBtn(){
     btn_options.addEventListener('click', (e)=>{
@@ -148,37 +211,34 @@ function SetupOptionBtn(){
          SetTimeButtonText();
     });
 
-    btn_fulscreen.addEventListener('click', (e)=>{
+    btn_fulscreen.addEventListener('click', (e) => {
         toggleFullScreen();
-        fullscreen = !fullscreen;        
+        fullscreen = !fullscreen;
+        SetFullScreen(fullscreen);
     });
 }
 
 function SetFullScreen(value) {
-    value = Boolean(value);
-    if (!Boolean.isFinite(value) || value <= 0) return;
-
-    localStorage.setItem("counter.fullscreen", value);
+    localStorage.setItem(
+        "counter.fullscreen",
+        String(Boolean(value))
+    );
 }
 
 function GetFullScreen() {
-    const DEFAULT_DURATION = true; // ms
-
-    //localStorage (persistente)
     const stored = localStorage.getItem("counter.fullscreen");
+
+    // La preferencia guardada por el usuario tiene prioridad.
     if (stored !== null) {
-        const value = Boolean(stored);
-        if (Boolean(value)) {
-            return value;
-        }
+        return stored === "true";
     }
 
-    if (typeof fullscreen === "boolean") {
-        return duration;
+    // Si no hay preferencia guardada, usar el JSON.
+    if (typeof window.counterFullscreen === "boolean") {
+        return window.counterFullscreen;
     }
 
-    //fallback absoluto
-    return DEFAULT_DURATION;
+    return true;
 }
 
 function toggleFullScreen() {
@@ -274,15 +334,24 @@ function loop() {
         const duration = GetDuration();
         const progress = Math.min(elapsed / duration, 1);
 
+        // CONTADOR ORIGINAL: no cambia su cálculo.
         TotalDaysCalculated = Math.floor(TotalDays * progress);
         UpdateCounter();
+
+        // NUEVO CONTADOR: años, meses y días de calendario.
+        UpdateCalendarCounter(progress);
 
         if (progress < 1) {
             loop();
         } else {
+            // Resultado final exacto del contador original.
             TotalDaysCalculated = TotalDays;
             UpdateCounter();
-            loopTimeout = null; // loop terminado
+
+            // Resultado final exacto del contador de calendario.
+            UpdateCalendarCounter(1);
+
+            loopTimeout = null;
         }
     }, GetTickTime());
 }
@@ -336,6 +405,130 @@ function UpdateCounter(){
     counter_blur.textContent = TotalDaysCalculated;
 }
 
+//CODIGO Years Months Days
+
+// Crea una fecha local a medianoche, sin depender de la hora actual.
+function NormalizeDate(date) {
+    return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate()
+    );
+}
+
+// Suma meses conservando el día original siempre que sea posible.
+// Si el día no existe en el mes destino, utiliza el último día de ese mes.
+function AddCalendarMonths(date, months) {
+    const totalMonths =
+        date.getFullYear() * 12 +
+        date.getMonth() +
+        months;
+
+    const year = Math.floor(totalMonths / 12);
+    const month = totalMonths - year * 12;
+
+    const lastDay = new Date(year, month + 1, 0).getDate();
+    const day = Math.min(date.getDate(), lastDay);
+
+    return new Date(year, month, day);
+}
+
+// Diferencia entre dos fechas expresada en días de calendario.
+// UTC evita errores de 23 o 25 horas por cambios de horario.
+function GetCalendarDayDifference(start, end) {
+    const startUTC = Date.UTC(
+        start.getFullYear(),
+        start.getMonth(),
+        start.getDate()
+    );
+
+    const endUTC = Date.UTC(
+        end.getFullYear(),
+        end.getMonth(),
+        end.getDate()
+    );
+
+    return Math.round(
+        (endUTC - startUTC) / 86400000
+    );
+}
+
+// Calcula años, meses y días completos entre dos fechas.
+function GetYearsMonthsDays(start, end) {
+    if (end < start) {
+        return { years: 0, months: 0, days: 0 };
+    }
+
+    let years = end.getFullYear() - start.getFullYear();
+
+    let anchor = AddCalendarMonths(start, years * 12);
+
+    // Ajustar si todavía no se ha alcanzado el aniversario.
+    if (anchor > end) {
+        years--;
+        anchor = AddCalendarMonths(start, years * 12);
+    }
+
+    let months = 0;
+
+    while (months < 11) {
+        const nextAnchor = AddCalendarMonths(
+            start,
+            years * 12 + months + 1
+        );
+
+        if (nextAnchor > end) break;
+
+        months++;
+        anchor = nextAnchor;
+    }
+
+    const days = GetCalendarDayDifference(anchor, end);
+
+    return { years, months, days };
+}
+
+// Actualiza exclusivamente los números de años, meses y días.
+function UpdateCalendarCounter(progress) {
+    if (!calendarStartDate || !calendarEndDate) return;
+
+    // Interpolar por días de calendario, evitando errores de horario.
+    const totalCalendarDays = GetCalendarDayDifference(
+        calendarStartDate,
+        calendarEndDate
+    );
+
+    const elapsedCalendarDays = Math.floor(
+        totalCalendarDays * Math.min(Math.max(progress, 0), 1)
+    );
+
+    const intermediateDate = new Date(
+        calendarStartDate.getFullYear(),
+        calendarStartDate.getMonth(),
+        calendarStartDate.getDate() + elapsedCalendarDays
+    );
+
+    // Garantizar el resultado final exacto.
+    const currentDate = progress >= 1
+        ? calendarEndDate
+        : intermediateDate;
+
+    const result = GetYearsMonthsDays(
+        calendarStartDate,
+        currentDate
+    );
+
+    year_counter.textContent = result.years;
+    year_counter_blur.textContent = result.years;
+
+    month_counter.textContent = result.months;
+    month_counter_blur.textContent = result.months;
+
+    day_counter.textContent = result.days;
+    day_counter_blur.textContent = result.days;
+}
+
+
 //CODIGO NUEVO
 async function fetchData() {
     try {
@@ -373,18 +566,35 @@ function SetName(JSONPersonData){
     name_Blur.textContent = `${JSONPersonData.code}-`;
 }
 
+function SetYearsMonthsDays(){
+    year_name_Text.textContent = `${"YEARS"}-`;   
+    year_name_Blur.textContent = `${"YEARS"}-`;    
+
+    month_name_Text.textContent = `${"MONTHS"}-`;   
+    month_name_Blur.textContent = `${"MONTHS"}-`; 
+  
+    day_name_Text.textContent = `${"DAYS"}-`;
+    day_name_Blur.textContent = `${"DAYS"}-`;
+}
+
 function SetupCounterSettings(JSONData){
     window.counterTick = JSONData.config.ticks;
     window.counterDuration = JSONData.config.duration //in milisecond
+    window.counterFullscreen = JSONData.config.fullscreen;
 }
 
-function SetupCounterNumbers(JSONPersonData){
+function SetupCounterNumbers(JSONPersonData) {
 
     today = new Date();
     const personDate = new Date(JSONPersonData.date);
 
+    // CONTADOR ORIGINAL: se mantiene intacto.
     difference = today.getTime() - personDate.getTime();
     TotalDays = Math.floor(difference / (1000 * 3600 * 24));
+
+    // NUEVO CONTADOR: fechas normalizadas al día de calendario.
+    calendarStartDate = NormalizeDate(personDate);
+    calendarEndDate = NormalizeDate(today);
 
     const tickTime = GetTickTime();
     const duration = GetDuration();
@@ -398,6 +608,11 @@ function SetupCounterNumbers(JSONPersonData){
     console.log("tickTime =", tickTime);
     console.log("totalTicks =", totalTicks);
     console.log("speed_number =", speed_number);
+
+    console.log(
+        "Calendar duration =",
+        GetYearsMonthsDays(calendarStartDate, calendarEndDate)
+    );
 }
 
 async function StartCounter(){
@@ -411,6 +626,7 @@ async function StartCounter(){
 
     SetupCounterSettings(dataJSON)
     SetupOptionBtn();
+    SetupCounterTypeBtn()
     CreateOptions(dataJSON);
     StartFullScreenCheck();
 
@@ -429,6 +645,7 @@ async function StartCounter(){
 
     if (!personData) return;
     SetName(personData);
+    SetYearsMonthsDays();
     
     SetupCounterNumbers(personData);
     //start the counter loop

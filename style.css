@@ -33,6 +33,20 @@ body{
     transition: all ease-in-out 0.2s;
 }
 
+.counter-block-group{
+    display: flex;
+    flex-direction: column;
+}
+
+.desaparecer{
+    display: none !important;
+}
+
+.counter-block.correct{
+    font-size: min(24vmin, 23vw);
+    height: calc(min(24vmin, 23vw)*0.85);
+}
+
 .counter-block {
     display: inline-flex;
     align-items: center;
@@ -63,7 +77,7 @@ body{
 /* fondo */
 .nombre-fondo,
 .num-fondo {
-    color: rgb(78, 78, 78);
+    color: rgba(78, 78, 78, 0.6);
     transition: all ease-in-out 0.2s;
 }
 
@@ -90,9 +104,9 @@ body{
 }
 
 @keyframes blur {
-    0%   { filter: blur(0.12em); }
-    50%  { filter: blur(0.2em); }
-    100% { filter: blur(0.12em); }
+    0%   { filter: blur(0.11em); }
+    50%  { filter: blur(0.20em); }
+    100% { filter: blur(0.11em); }
 }
 
 .name-cont span,

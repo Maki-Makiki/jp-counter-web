@@ -12,20 +12,25 @@
             "code":"JP",
             "date":"April 05, 2021"
         },
-                {
+        {
             "name":"maki",
             "code":"MK",
             "date":"November 01, 2016"
         },
-                {
+        {
             "name":"laura",
             "code":"LL",
             "date":"January 02, 1996"
         },
-                {
+        {
             "name":"HRT",
             "code":"HR",
             "date":"April 10, 2026"
+        },
+        {
+            "name":"coming out",
+            "code":"CO",
+            "date":"April 20, 2024"
         }
     ]
 }
