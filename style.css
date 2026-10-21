@@ -43,8 +43,8 @@ body{
 }
 
 .counter-block.correct{
-    font-size: min(24vmin, 23vw);
-    height: calc(min(24vmin, 23vw)*0.85);
+    font-size: min(34vmin, 23vw);
+    height: 0.8em;
 }
 
 .counter-block {
