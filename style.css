@@ -42,6 +42,10 @@ body{
     display: none !important;
 }
 
+.counter-block-group{
+    margin-top: 50px;
+}
+
 .counter-block.correct{
     font-size: min(34vmin, 23vw);
     height: 0.8em;
