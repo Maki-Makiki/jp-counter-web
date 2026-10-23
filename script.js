@@ -33,26 +33,26 @@ var num_counter_block  = document.querySelector(".num-counter-block");
 
 var date_counter_block  = document.querySelector(".date-counter-block");
 
-var year_counter_fondo  = document.querySelector(".year-counter-number .num-fondo");
-var year_counter        = document.querySelector(".year-counter-number .num-frente");
-var year_counter_blur   = document.querySelector(".year-counter-number .num-frente-blur");
-var year_name_Back      = document.querySelector(".year-counter-name .nombre-fondo");
-var year_name_Text      = document.querySelector(".year-counter-name .nombre-frente");
-var year_name_Blur      = document.querySelector(".year-counter-name .nombre-frente-blur");
+var year_counter_fondo  = document.querySelector(".year-counter-number  .num-fondo");
+var year_counter        = document.querySelector(".year-counter-number  .num-frente");
+var year_counter_blur   = document.querySelector(".year-counter-number  .num-frente-blur");
+var year_name_Back      = document.querySelector(".year-counter-name    .nombre-fondo");
+var year_name_Text      = document.querySelector(".year-counter-name    .nombre-frente");
+var year_name_Blur      = document.querySelector(".year-counter-name    .nombre-frente-blur");
 
-var month_counter_fondo  = document.querySelector(".month-counter-number .num-fondo");
-var month_counter        = document.querySelector(".month-counter-number .num-frente");
-var month_counter_blur   = document.querySelector(".month-counter-number .num-frente-blur");
-var month_name_Back      = document.querySelector(".month-counter-name .nombre-fondo");
-var month_name_Text      = document.querySelector(".month-counter-name .nombre-frente");
-var month_name_Blur      = document.querySelector(".month-counter-name .nombre-frente-blur");
+var month_counter_fondo = document.querySelector(".month-counter-number .num-fondo");
+var month_counter       = document.querySelector(".month-counter-number .num-frente");
+var month_counter_blur  = document.querySelector(".month-counter-number .num-frente-blur");
+var month_name_Back     = document.querySelector(".month-counter-name   .nombre-fondo");
+var month_name_Text     = document.querySelector(".month-counter-name   .nombre-frente");
+var month_name_Blur     = document.querySelector(".month-counter-name   .nombre-frente-blur");
 
-var day_counter_fondo  = document.querySelector(".day-counter-number .num-fondo");
-var day_counter        = document.querySelector(".day-counter-number .num-frente");
-var day_counter_blur   = document.querySelector(".day-counter-number .num-frente-blur");
-var day_name_Back      = document.querySelector(".day-counter-name .nombre-fondo");
-var day_name_Text      = document.querySelector(".day-counter-name .nombre-frente");
-var day_name_Blur      = document.querySelector(".day-counter-name .nombre-frente-blur");
+var day_counter_fondo   = document.querySelector(".day-counter-number   .num-fondo");
+var day_counter         = document.querySelector(".day-counter-number   .num-frente");
+var day_counter_blur    = document.querySelector(".day-counter-number   .num-frente-blur");
+var day_name_Back       = document.querySelector(".day-counter-name     .nombre-fondo");
+var day_name_Text       = document.querySelector(".day-counter-name     .nombre-frente");
+var day_name_Blur       = document.querySelector(".day-counter-name     .nombre-frente-blur");
 
 var op_window = document.getElementsByClassName("op-window")[0];
 var op_container = document.getElementsByClassName("op-container")[0];
